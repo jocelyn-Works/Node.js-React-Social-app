@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
       minLength: 3,
       maxLength: 55,
       unique: true,
-      trim: true // suprime les espace 
+      trim: true // suprime les espace
     },
     email: {
       type: String,
@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// play function before save into display: 'block',
+// hashage du mot de passe avant entrer en BDD
 userSchema.pre("save", async function(next) {
   const salt = await bcrypt.genSalt();
   this.password = await bcrypt.hash(this.password, salt);
