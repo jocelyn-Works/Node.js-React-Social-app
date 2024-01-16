@@ -22,3 +22,37 @@ module.exports.userInfo = async (req, res) => {
     }
 };
 
+
+module.exports.updateUser = async (req, res) => {
+    if (!ObjectID.isValid(req.params.id))
+        return res.status(400).send('ID Inconnue : ' + req.params.id);
+
+    try {
+        const updatedUser = await UserModel.findOneAndUpdate(
+            { _id: req.params.id },
+            {
+                $set: {
+                    bio: req.body.bio,
+                },
+            },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        ).select('-password');
+
+        res.send(updatedUser);
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};
+
+module.exports.deleteUser = async (req, res) => {
+    if (!ObjectID.isValid(req.params.id))
+        return res.status(400).send('ID Inconnue : ' + req.params.id);
+
+        try {
+            await UserModel.removeAllListeners({ _id: req.params.id }).exec();
+            res.status(200).json({ message: "supprimé avec succès."});
+        } catch (err) {
+            return res.status(500).json({ message: err});
+        }
+
+}
