@@ -7,3 +7,4 @@ npm i :
 - nodemon
 - express
 - dotenv
+- mongoose
