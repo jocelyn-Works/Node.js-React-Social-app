@@ -8,3 +8,6 @@ npm i :
 - express
 - dotenv
 - mongoose
+- body-parser
+- validator
+- bcrypt

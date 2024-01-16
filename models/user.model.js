@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
       minLength: 3,
       maxLength: 55,
       unique: true,
-      trim: true
+      trim: true // suprime les espace 
     },
     email: {
       type: String,
@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema(
     }
   },
   {
-    timestamps: true,
+    timestamps: true,  // createdAt / UpdtedAt
   }
 );
 
@@ -67,7 +67,7 @@ userSchema.statics.login = async function(email, password) {
   }
   throw Error('incorrect email')
 };
-
+                               // user = nom de la table 
 const UserModel = mongoose.model("user", userSchema);
 
 module.exports = UserModel;
