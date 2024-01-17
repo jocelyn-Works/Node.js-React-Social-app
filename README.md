@@ -11,3 +11,4 @@ npm i :
 - body-parser
 - validator
 - bcrypt
+-jsonwebtoken
