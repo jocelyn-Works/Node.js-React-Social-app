@@ -11,4 +11,5 @@ npm i :
 - body-parser
 - validator
 - bcrypt
--jsonwebtoken
+- jsonwebtoken
+- cookie-parser 
