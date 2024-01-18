@@ -1,12 +1,16 @@
 const router = require('express').Router();
 const postController = require("../controllers/post.controller");
 
-router.post("/", postController. createPost);
-router.get("/", postController. readPost);
-router.put("/:id", postController. updatePost);
-router.delete("/:id", postController. deletePost);
-router.patch("/like-post/:id", postController. likePost);
-router.patch("/unlike-post/:id", postController. unlikePost);
+router.post("/", postController.createPost);
+router.get("/", postController.readPost);
+router.put("/:id", postController.updatePost);
+router.delete("/:id", postController.deletePost);
+router.patch("/like-post/:id", postController.likePost);
+router.patch("/unlike-post/:id", postController.unlikePost);
 
+// commentaire 
+router.patch("/comment-post/:id", postController.commentPost);
+router.patch("/edit-comment-post/:id", postController.editCommentPost);
+router.delete("/delete-comment-post/:id", postController.deletCommentPost);
 
 module.exports = router;
