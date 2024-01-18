@@ -22,7 +22,7 @@ module.exports.createPost = async (req, res) => {
 
 module.exports.readPost = async (req, res) => {
   try {
-    const docs = await PostModel.find();
+    const docs = await PostModel.find().sort({ createdAt: -1 });
     res.send(docs);
   } catch (err) {
     console.error("Erreur lors de la récupération des données : " + err);
@@ -153,5 +153,105 @@ module.exports.unlikePost = async (req, res) => {
     res
       .status(500)
       .json({ message: "Erreur lors de la mise à jour des likes" });
+  }
+};
+
+module.exports.commentPost = async (req, res) => {
+  try {
+    if (!ObjectID.isValid(req.params.id))
+      return res.status(400).send("ID Inconnue : " + req.params.id);
+
+    // Mise à jour du post avec le commentaire
+    const updatedPost = await PostModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        $push: {
+          comments: {
+            commenterId: req.body.commenterId,
+            commenterPseudo: req.body.commenterPseudo,
+            text: req.body.text,
+            timestamp: new Date().getTime(),
+          },
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedPost) {
+      return res.status(404).send("Post non trouvé");
+    }
+
+    res.send(updatedPost);
+  } catch (err) {
+    console.error("Erreur lors de la publication du commentaire: " + err);
+    res
+      .status(500)
+      .json({ message: "Erreur lors de la publication du commentaire" });
+  }
+};
+
+module.exports.editCommentPost = async (req, res) => {
+  try {
+    if (!ObjectID.isValid(req.params.id))
+      return res.status(400).send("ID Inconnue : " + req.params.id);
+
+    const post = await PostModel.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).send("Post non trouvé");
+    }
+
+    const theComment = post.comments.find((comment) =>
+      comment._id.equals(req.body.commentId)
+    );
+
+    if (!theComment) {
+      return res.status(404).send("Commentaire non trouvé");
+    }
+
+    console.log("Comment avant modification:", theComment);
+
+    theComment.text = req.body.text;
+
+    console.log("Comment après modification:", theComment);
+
+    const updatedPost = await post.save();
+
+    console.log("Post après enregistrement:", updatedPost);
+
+    res.status(200).send(updatedPost);
+  } catch (err) {
+    console.error("Erreur lors de la modification du commentaire: " + err);
+    res
+      .status(500)
+      .json({ message: "Erreur lors de la modification du commentaire" });
+  }
+};
+
+module.exports.deleteCommentPost = async (req, res) => {
+  try {
+    if (!ObjectID.isValid(req.params.id))
+      return res.status(400).send("ID Inconnue : " + req.params.id);
+
+    const updatedPost = await PostModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        $pull: {
+          comments: {
+            _id: req.body.commentId,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedPost) {
+      return res.status(404).send('Post non trouvé');
+    }
+
+    res.send(updatedPost);
+  } catch (err) {
+    console.error("Erreur lors de la suppression du commentaire: " + err);
+    res.status(500).json({ message: "Erreur lors de la suppression du commentaire" });
   }
 };
