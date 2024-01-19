@@ -3,7 +3,8 @@ const authController = require('../controllers/auth.controller');
 const userController = require('../controllers/user.controller');
 const uploadController = require('../controllers/upload.controller');
 const multer = require('multer');
-const upload = multer();
+const storage = multer.memoryStorage(); // Stocke le fichier en mémoire
+const upload = multer({ storage: storage });
 
 // authentification 
 router.post("/register", authController.signUp);
