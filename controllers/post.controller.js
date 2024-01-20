@@ -1,24 +1,64 @@
 const postModel = require("../models/post.model");
 const PostModel = require("../models/post.model");
 const UserModel = require("../models/user.model");
+const { uploadErrors } = require("../utils/error.utils");
+const fs = require("fs").promises;
+const { promisify } = require("util");
+const pipeline = promisify(require("stream").pipeline);
+const path = require('path');
 const ObjectID = require("mongoose").Types.ObjectId;
 
 module.exports.createPost = async (req, res) => {
-  const newPost = new postModel({
-    posterId: req.body.posterId,
-    message: req.body.message,
-    video: req.body.video,
-    likers: [],
-    comments: [],
-  });
-
   try {
-    const post = await newPost.save();
-    return res.status(201).json(post);
+    console.log('Detected Mimetype:', req.file.mimetype);
+    console.log('File Size:', req.file.size);
+
+    // Gestion du type de fichier autorisé
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (!allowedMimeTypes.includes(req.file.mimetype)) {
+      throw new Error('invalide file');
+    }
+
+    // Gestion de la taille maximale du fichier
+    if (req.file.size > 500000) {
+      throw new Error('max size');
+    }
+
+    // Vérifier si le dossier existe, sinon le créer avec fs.promises
+    const uploadDirectory = path.join(__dirname, '..', 'client', 'public', 'uploads', 'posts');
+    await fs.mkdir(uploadDirectory, { recursive: true });
+
+    // Utilisation de fs.promises.writeFile pour écrire le fichier
+    const fileName = `${req.body.posterId}${Date.now()}.jpg`;
+    await fs.writeFile(path.join(uploadDirectory, fileName), req.file.buffer);
+
+    const newPost = new postModel({
+      posterId: req.body.posterId,
+      message: req.body.message,
+      picture: req.file != null ? `./uploads/posts/${fileName}` : "",
+      video: req.body.video,
+      likers: [],
+      comments: [],
+    });
+
+    try {
+      const post = await newPost.save();
+      return res.status(201).json(post);
+    } catch (err) {
+      console.error('Error saving post to database:', err.message);
+      // Supprimer le fichier partiellement écrit en cas d'échec
+      await fs.unlink(path.join(uploadDirectory, fileName));
+      return res.status(500).send({ message: 'Internal Server Error' });
+    }
+
   } catch (err) {
-    return res.status(400).send(err);
+    console.error('Error:', err.message);
+    return res.status(400).json({ errors: [err.message] });
   }
 };
+
+
+
 
 module.exports.readPost = async (req, res) => {
   try {
@@ -246,12 +286,14 @@ module.exports.deleteCommentPost = async (req, res) => {
     );
 
     if (!updatedPost) {
-      return res.status(404).send('Post non trouvé');
+      return res.status(404).send("Post non trouvé");
     }
 
     res.send(updatedPost);
   } catch (err) {
     console.error("Erreur lors de la suppression du commentaire: " + err);
-    res.status(500).json({ message: "Erreur lors de la suppression du commentaire" });
+    res
+      .status(500)
+      .json({ message: "Erreur lors de la suppression du commentaire" });
   }
 };

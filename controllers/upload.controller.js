@@ -13,12 +13,12 @@ module.exports.uploadProfil = async (req, res) => {
     // Gestion du type de fichier autorisé
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
     if (!allowedMimeTypes.includes(req.file.mimetype)) {
-      throw new Error('Invalid file format');
+      throw new Error('invalide file');
     }
 
     // Gestion de la taille maximale du fichier
     if (req.file.size > 500000) {
-      throw new Error('File size exceeds maximum limit');
+      throw new Error('max size');
     }
   } catch (err) {
     const errors = uploadErrors(err);
