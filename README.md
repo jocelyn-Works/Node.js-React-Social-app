@@ -13,3 +13,4 @@ npm i :
 - bcrypt
 - jsonwebtoken
 - cookie-parser 
+- cors
