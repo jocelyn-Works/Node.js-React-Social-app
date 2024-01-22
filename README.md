@@ -3,7 +3,8 @@
 ##
 npm init -y
 
-npm i :
+// back-end
+npm i -s :
 - nodemon
 - express
 - dotenv
@@ -14,3 +15,7 @@ npm i :
 - jsonwebtoken
 - cookie-parser 
 - cors
+
+// front-end
+- npx create-react-app client  
+- npm i -s node-sass react-router-dom  
