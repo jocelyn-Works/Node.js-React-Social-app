@@ -19,3 +19,4 @@ npm i -s :
 // front-end
 - npx create-react-app client  
 - npm i -s node-sass react-router-dom  
+- npm i -s axios        
